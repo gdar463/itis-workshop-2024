@@ -10,6 +10,8 @@ createdb file_storage
 psql file_storage
 ```
 
+if psql fails check if all the ports match
+
 in psql
 
 ```sql

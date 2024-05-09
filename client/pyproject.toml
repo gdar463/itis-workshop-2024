@@ -1,0 +1,13 @@
+[tool.ruff.lint]
+ignore = ["F401"]
+
+[tool.basedpyright]
+ignore = ["**/spinner.py", "**/demo.py"]
+
+reportUnknownParameterType = false
+reportMissingParameterType = false
+reportUnknownVariableType = false
+reportUnnecessaryCondition = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+

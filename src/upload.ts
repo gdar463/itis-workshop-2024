@@ -53,6 +53,7 @@ export async function upload(
             break;
         }
     }
+    // TODO: Controllo segreto mistico
     consolelog(
         `${chalk.cyanBright("Generato segreto:")} ${chalk.greenBright(secret)}`,
     );

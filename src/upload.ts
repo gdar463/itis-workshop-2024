@@ -27,20 +27,31 @@ export async function upload(
     if (blob === null) {
         return new Response("Missing file", { status: 400 });
     }
-
     let secret;
-    switch (config.PASSWORD_TYPE) {
-        case "1":
-            secret = generate(16);
+    while (true) {
+        switch (config.PASSWORD_TYPE) {
+            case "1":
+                secret = generate(16);
+                break;
+            case "2":
+                secret = Buffer.from(
+                    Array.from(crypto.getRandomValues(new Int8Array(32))).join(
+                        "",
+                    ),
+                ).toString("base64");
+                break;
+            default:
+                secret = generate(6);
+                break;
+        }
+        const check_secret = await prisma.file.findUnique({
+            where: {
+                secretWord: secret,
+            },
+        });
+        if (!check_secret) {
             break;
-        case "2":
-            secret = Buffer.from(
-                Array.from(crypto.getRandomValues(new Int8Array(32))).join(""),
-            ).toString("base64");
-            break;
-        default:
-            secret = generate(6);
-            break;
+        }
     }
     consolelog(
         `${chalk.cyanBright("Generato segreto:")} ${chalk.greenBright(secret)}`,
@@ -71,6 +82,9 @@ export async function upload(
             ],
         });
     } catch (e) {
+        consolelog(
+            `${chalk.bold(chalk.redBright("ERRORE:"))} ${chalk.cyanBright(`Fallito invio di messaggio. L'errore è \n\n`)} ${chalk.redBright(e)}`,
+        );
         return new Response("Failed to send message", { status: 500 });
     }
     consolelog(

@@ -10,4 +10,5 @@ reportUnknownVariableType = false
 reportUnnecessaryCondition = false
 reportUnknownArgumentType = false
 reportUnknownMemberType = false
+reportImplicitOverride = false
 

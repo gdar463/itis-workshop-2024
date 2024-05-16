@@ -179,3 +179,5 @@ gabor/
 
 __pycache__
 .venv
+
+downloaded/

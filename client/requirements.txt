@@ -1,4 +1,6 @@
 PyQt6
 python-magic
 requests
+python-magic-bin
+qtawesome
 

@@ -1,3 +1,5 @@
+import os
+import time
 import urllib.parse
 from PyQt6.QtCore import pyqtSlot 
 from PyQt6.QtWidgets import QFileDialog
@@ -27,6 +29,10 @@ def open_file_dialog(parent):
         match request.status_code:
             case 200:
                 secret: dict[str, str] = request.json()
+                if not os.path.isfile("recent.txt"):
+                    _ = open("recent.txt", "xt")
+                with open("recent.txt", "at") as f:
+                    _ = f.write(filename[0].split("/")[-1].replace(";", ",") + ";" + secret["code"] + ";" + str(time.time()) + "\n")
                 parent.spinner.stop()
                 _ = Dialog("Successo", "<p style=\"font-size:13px\">Inviato il file con successo. <br />Il codice del file è: " +
                                 secret["code"] + "<br />Non perderlo, se no il file verrà perso per sempre</p>").exec()
@@ -56,6 +62,14 @@ def get_file_from_server(parent):
         match request.status_code:
             case 200:
                 filename = request.headers["X-File-Name"]
+                with open("recent.txt", "w+t") as f:
+                    saved: list[str] = f.readlines()
+                    secrets = []
+                    for i in range(len(saved)):
+                        secrets.append(saved[i].split(";")[1])
+                    index = secrets.index(password)
+                    _ = saved.pop(index)
+                    f.writelines(saved)
                 QFileDialog.saveFileContent(request.content, filename)
                 parent.spinner.stop()
                 # _ = Dialog("Successo", "<p style=\"font-size:13px\">Ricevuto il file con successo.</p>").exec()

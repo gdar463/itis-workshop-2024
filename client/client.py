@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 
-from dialog import ServerSettingDialog
+from dialog import ServerSettingDialog, RecentSentDialog
 from send import get_file_from_server, open_file_dialog
 from spinner import QtWaitingSpinner
 
@@ -42,7 +42,13 @@ class MainWidget(QWidget):
     def __init__(self, parent):
         super().__init__()
 
-        options_button = QPushButton(self)
+        recent_button = QPushButton()
+        recent_button.setFixedSize(30,30)
+        recent_button.setIcon(qta.icon("fa.list-ul"))
+        recent_button.setIconSize(QSize(16,18))
+        _ = recent_button.clicked.connect(self.show_list)
+
+        options_button = QPushButton()
         options_button.setFixedSize(30,30)
         options_button.setIcon(qta.icon("fa.gear"))
         options_button.setIconSize(QSize(16,18))
@@ -64,13 +70,15 @@ class MainWidget(QWidget):
         self.title_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignHCenter)
         self.title_layout.setSpacing(10)
         self.title_layout.addWidget(title_icon, alignment=Qt.AlignmentFlag.AlignHCenter)
-        self.title_layout.addWidget(options_button, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        self.title_layout.addStretch()
+        self.title_layout.addWidget(recent_button, alignment=Qt.AlignmentFlag.AlignRight)
+        self.title_layout.addWidget(options_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         hint_label = QLabel("<p style=\"font-size:16px\">Benvenuto, scegli cosa fare:</p>")
         hint_label.setTextFormat(Qt.TextFormat.RichText)
 
         get_button = QPushButton()
-        get_button.setText("Ottieni file")
+        get_button.setText("Scarica file")
         get_button.setStyleSheet("font-size: 14px")
         get_button.setFixedSize(90,32)
         _ = get_button.clicked.connect(self.get_file)
@@ -112,6 +120,9 @@ class MainWidget(QWidget):
         result = get_file_from_server(self)
         if result:
             self.pass_edit.setText("")
+
+    def show_list(self):
+        _ = RecentSentDialog(self).exec()
 
 myappid = u'gdar463.keycloud.1.0'
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)

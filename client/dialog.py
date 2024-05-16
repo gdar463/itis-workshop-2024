@@ -1,7 +1,16 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QLineEdit, QVBoxLayout
+from PyQt6.QtWidgets import (
+    QDialog, 
+    QDialogButtonBox, 
+    # QHBoxLayout, 
+    QLabel, 
+    QLineEdit, 
+    QScrollArea, 
+    QVBoxLayout, 
+    QWidget
+    )
 import qtawesome as qta # pyright: ignore[reportMissingTypeStubs]
-
+import datetime
 
 class Dialog(QDialog):
     def __init__(self, title: str, message: str):
@@ -28,6 +37,8 @@ class ServerSettingDialog(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Indirizzo Server")
+        icon = qta.icon("mdi6.cloud-outline", options=[{"scale_factor":1.25}])
+        self.setWindowIcon(icon)
         
         QBtn = QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok
 
@@ -51,6 +62,58 @@ class ServerSettingDialog(QDialog):
     def ok(self):
         self.parent().ip = self.ip_edit.text() # type: ignore[reportUnknownVariableType]
         self.accept()
+
+
+class RecentSentDialog(QDialog):
+    def __init__(self, parent) -> None:
+        super().__init__(parent)
+
+        scroll = QScrollArea()
+        widget = QWidget()
+        layout = QVBoxLayout()
+        
+        self.setWindowTitle("Scaricati di recente")
+        icon = qta.icon("mdi6.cloud-outline", options=[{"scale_factor":1.25}])
+        self.setWindowIcon(icon)
+
+        button = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        _ = button.accepted.connect(self.accept)
+
+        try:
+            with open("recent.txt", "r+t") as f:
+                recent = f.readlines()
+        except Exception:
+            _ = Dialog("Errore", "Non esiste il file 'recent.txt'. " +
+                       "Probabilemente non hai ancora inviato qualcosa").exec()
+            _ = self.close()
+            return
+        
+        if len(recent) == 0:
+            _ = Dialog("Errore", "Non hai ancora inviato qualcosa che non sia già stato inviato").exec()
+            _ = self.close()
+            return
+
+        for i in range(len(recent)):
+            item = recent[i].split(";")
+            label = QLabel("- Name: " + item[0] + " Password: " + item[1] + " Date: " + datetime.datetime.fromtimestamp(float(item[2])).strftime("%d-%m-%Y %H:%M:%S"))
+            label.setStyleSheet("font-size:14px")
+            label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            layout.addWidget(label)
+
+        widget.setLayout(layout)
+
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setWidgetResizable(False)
+        scroll.setWidget(widget)
+
+        layout = QVBoxLayout()
+        layout.addWidget(scroll)
+        layout.addWidget(button)
+
+        self.resize(600,800)
+        self.setLayout(layout)
+    
 
 
 if __name__ == "__main__":
